@@ -4,7 +4,7 @@ from flask_apscheduler import APScheduler
 
 import logging
 import requests
-from myaddress import AddressMetadata 
+from address_metadata import AddressMetadata 
 
 app = Flask(__name__)
 
