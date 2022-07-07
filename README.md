@@ -17,4 +17,5 @@ Sample requests:
     curl "http://localhost:5000/address/bc1q0sg9rdst255gtldsmcf8rk0764avqy2h2ksqs5/txs?offset=0&limit=13"
 
 NOTE:
-    blockchain.io's cloudflare setting seems to be very strict on rate limiting, my program was throttled for long time after I simply sent three/four requests in five seconds. I had to use different IPs multiple times. Now I am adding a 5 second delay in between each request, but if there might still be some other rate limits. As such, I suggest use the above bitcoin address, which only has 2 transactions. Other addresses with more transactions could not be tested due to the possible rate limit.
+    1. blockchain.info's cloudflare setting seems to be very strict on rate limiting, my program was throttled for long time after I simply sent three/four requests in five seconds. I had to use different IPs multiple times. Now I am adding a 5 second delay in between each request, but if there might still be some other rate limits. As such, I suggest use the above bitcoin address, which only has 2 transactions. Other addresses with more transactions could not be tested due to the possible rate limit.
+    2. We might want to take the confirmation number of transactons into account, to only store txs with >=6 confirmations. However, I was not able to find the confirmation number from the returned metadata.
