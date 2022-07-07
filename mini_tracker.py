@@ -44,13 +44,15 @@ def delete_address(addr):
     else:
         return NOT_EXIST, 404 
 
-@app.route("/address/<addr>/tx", methods=['GET'])
+@app.route("/address/<addr>/txs", methods=['GET'])
 def get_address_txs(addr):
     if addr not in address_dict:
         return NOT_EXIST, 404
     else:
-        valid, res = address_dict[addr].txs() 
-        if valid:
+        offset = request.args.get('offset', default = 0, type = int)
+        limit = request.args.get('limit', default = 50, type = int)
+        valid, res = address_dict[addr].get_txs(offset, limit) 
+        if not valid:
             return NOT_SYNCHRONIZED, 500
         else:
             return jsonify(res) 
@@ -60,8 +62,9 @@ def get_address_balance(addr):
     if addr not in address_dict:
         return NOT_EXIST, 400
     else:
-        valid, res = address_dict[addr].balance() 
-        if valid:
+        app.logger.info(address_dict[addr])
+        valid, res = address_dict[addr].get_balance() 
+        if not valid:
             return NOT_SYNCHRONIZED, 500
         else:
             return jsonify(res) 
@@ -77,5 +80,5 @@ if __name__ == '__main__':
     scheduler = APScheduler()
     scheduler.init_app(app)
     scheduler.start()
-    scheduler.add_job(id='synchronize_txs', func=synchronize_txs, trigger='interval', seconds=3330)
+    scheduler.add_job(id='synchronize_txs', func=synchronize_txs, trigger='interval', seconds=30)
     app.run(debug=True)
