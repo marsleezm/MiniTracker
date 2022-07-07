@@ -2,14 +2,16 @@ from datetime import datetime
 from requests.adapters import HTTPAdapter, Retry
 import requests
 import logging
+import time
 
-url = 'https://blockchain.info/rawaddr/{0}?offset={1}'
-retries = Retry(total=5, backoff_factor=3, status_forcelist=[429, 500, 502, 503, 504])
+URL = 'https://blockchain.info/rawaddr/{0}?offset={1}'
+RETRIES = Retry(total=5, backoff_factor=3, status_forcelist=[429, 500, 502, 503, 504])
+SLEEP_TIME = 5
 
-class Address:
+class AddressMetadata:
     def __init__(self, logger, address):
         self.session = requests.Session()
-        self.session.mount('http://', HTTPAdapter(max_retries=retries))
+        self.session.mount('http://', HTTPAdapter(max_retries=RETRIES))
 
         self.logger = logger 
         self.address = address 
@@ -29,7 +31,7 @@ class Address:
             self.init_synchronize()
 
     def get_newer_txs(self, timestamp):
-        r = self.session.get(url.format(self.address, 0))
+        r = self.delayed_get(URL.format(self.address, 0))
         if r.status_code != 200:
             raise Exception("Can not finish the request, status code was %d", r.status_code)
 
@@ -55,14 +57,14 @@ class Address:
     def get_older_txs(self, timestamp, offset):
         backoff = 1
         offset -= backoff
-        r = self.session.get(url.format(self.address, offset))
+        r = self.delayed_get(URL.format(self.address, offset))
         if r.status_code == 200:
             tmp_txs = r.json()['txs']
             balance = r.json()['final_balance'] 
 
             while timestamp < tmp_txs[0]["time"]:
                 offset -= backoff
-                r = self.session.get(url.format(self.address, offset))
+                r = self.delayed_get(URL.format(self.address, offset))
                 if r.status_code != 200:
                     raise Exception("Can not finish the request, status code was %d", r.status_code)
                 tmp_txs = r.json()['txs']
@@ -73,7 +75,7 @@ class Address:
             raise Exception("Can not finish the request, status code was %d", r.status_code)
 
     def init_synchronize(self):
-        r = self.session.get(url.format(self.address, 0))
+        r = self.delayed_get(URL.format(self.address, 0))
         if r.status_code == 200:
             resp = r.json()
             self.balance = resp['final_balance']
@@ -103,3 +105,7 @@ class Address:
             return false, {}
         else:
             return true, {"balance": self.balance, "synchronized_time": self.last_synced }
+
+    def delayed_get(self, url):
+        time.sleep(SLEEP_TIME)
+        return self.session.get(url)

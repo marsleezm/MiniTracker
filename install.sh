@@ -1,4 +1,4 @@
-export FLASK_APP=test.py
+export FLASK_APP=mini_tracker.py
 pip3 install flask_expects_json
 pip3 install flask_apscheduler
 pip3 install flask
