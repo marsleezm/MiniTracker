@@ -1,4 +1,4 @@
-??? from here until ???END lines may have been inserted/deleted
+
 # MiniTracker
 This is a simple Http Server implementation of mini-tracker.
 Before running, please first run install.sh. After installtion finishes, please run python3 ./mini\_tracker.py
